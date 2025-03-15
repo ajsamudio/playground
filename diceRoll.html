@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice Roll Game</title>
+    <style>
+        body {
+            font-family: 'Arial Rounded MT Bold', Arial, sans-serif;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .dice-container {
+            display: flex;
+            gap: 30px;
+            margin: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .die {
+            width: 100px;
+            height: 100px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .die:hover {
+            transform: scale(1.10) rotate(5deg);
+        }
+
+        .dot {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #2c3e50;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .results {
+            background: rgba(255,255,255,0.1);
+            padding: 20px 40px;
+            border-radius: 15px;
+            margin-top: 30px;
+            color: white;
+            font-size: 24px;
+            backdrop-filter: blur(5px);
+        }
+
+        .rolling {
+            animation: roll 0.8s ease-out;
+        }
+
+        @keyframes roll {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(360deg) scale(1.2); }
+            100% { transform: rotate(720deg) scale(1); }
+        }
+
+        h1 {
+            color: white;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        /* Dice face configurations */
+        .pos-center { left: 50%; top: 50%; }
+        .pos-top-left { left: 25%; top: 25%; }
+        .pos-top-right { left: 75%; top: 25%; }
+        .pos-middle-left { left: 25%; top: 50%; }
+        .pos-middle-right { left: 75%; top: 50%; }
+        .pos-bottom-left { left: 25%; top: 75%; }
+        .pos-bottom-right { left: 75%; top: 75%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎲 Dice Roll Game 🎲</h1>
+        <div class="dice-container">
+            <div class="die" id="die1"></div>
+            <div class="die" id="die2"></div>
+        </div>
+        <div class="results" id="results">Click dice to roll!</div>
+    </div>
+
+    <script>
+        const dice = [document.getElementById('die1'), document.getElementById('die2')];
+        const results = document.getElementById('results');
+
+        function createDots(die, number) {
+            die.innerHTML = '';
+            const positions = {
+                1: ['center'],
+                2: ['top-left', 'bottom-right'],
+                3: ['top-left', 'center', 'bottom-right'],
+                4: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
+                5: ['top-left', 'top-right', 'center', 'bottom-left', 'bottom-right'],
+                6: ['top-left', 'top-right', 'middle-left', 'middle-right', 'bottom-left', 'bottom-right']
+            }[number];
+
+            positions.forEach(pos => {
+                const dot = document.createElement('div');
+                dot.className = `dot pos-${pos}`;
+                die.appendChild(dot);
+            });
+        }
+
+        function rollDie(die) {
+            die.classList.add('rolling');
+            const roll = Math.floor(Math.random() * 6) + 1;
+            
+            setTimeout(() => {
+                createDots(die, roll);
+                die.classList.remove('rolling');
+            }, 800);
+
+            return roll;
+        }
+
+        function updateResults(rolls) {
+            results.textContent = `You rolled: ${rolls[0]} & ${rolls[1]} (Total: ${rolls[0] + rolls[1]})`;
+        }
+
+        dice.forEach(die => {
+            createDots(die, 1); // Initial state
+            die.addEventListener('click', () => {
+                const rolls = [
+                    die === dice[0] ? rollDie(dice[0]) : Number(dice[0].getAttribute('data-value')),
+                    die === dice[1] ? rollDie(dice[1]) : Number(dice[1].getAttribute('data-value'))
+                ];
+                
+                setTimeout(() => {
+                    dice[0].setAttribute('data-value', rolls[0]);
+                    dice[1].setAttribute('data-value', rolls[1]);
+                    updateResults(rolls);
+                }, 900);
+            });
+        });
+    </script>
+</body>
+</html>
